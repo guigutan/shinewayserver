@@ -1,39 +1,56 @@
-import express from 'express';
-import cors from 'cors';
-import { SERVER_CONFIG } from './config/config';
-import { testDbConnection } from './config/db';
-import userRoutes from './routes/user.routes';
+import express, { Express, Request, Response } from 'express';
+import mariadb from 'mariadb';
 
-// 创建 Express 应用
-const app = express();
-const PORT = SERVER_CONFIG.PORT;
+const app: Express = express();
+const port = 3000; // 也可以改成你想要的端口
 
-// 中间件
-app.use(cors()); // 跨域支持
-app.use(express.json()); // 解析 JSON 请求体
-app.use(express.urlencoded({ extended: true })); // 解析 URL 编码请求体
+app.use(express.json());
 
-// 路由
-app.use('/api/users', userRoutes); // 用户相关路由
-app.get('/', (req, res) => {
-  res.send('Hello Express + TypeScript + MariaDB! (无 .env 版本)');
+// ===== 直接在这里填写你的 MariaDB 配置 =====
+const pool = mariadb.createPool({
+  host: 'localhost',              // 修改为你的主机地址（如 127.0.0.1 或远程 IP）
+  port: 3306,                     // MariaDB 默认端口
+  user: 'your_username',          // 替换成你的 MariaDB 用户名（如 root）
+  password: 'your_password',      // 替换成你的密码
+  database: 'your_database_name', // 替换成你要连接的数据库名
+  connectionLimit: 10             // 连接池大小，可根据需要调整
+});
+// ============================================
+
+// 测试数据库连接并获取版本
+app.get('/db-version', async (req: Request, res: Response) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query('SELECT VERSION() AS version');
+    res.json({ version: rows[0].version });
+  } catch (err: any) {
+    console.error('Database error:', err);
+    res.status(500).json({ error: 'Database connection failed', message: err.message });
+  } finally {
+    if (conn) conn.release();
+  }
 });
 
-// 全局错误处理中间件
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: '服务器内部错误',
-    error: SERVER_CONFIG.NODE_ENV === 'development' ? err.message : undefined
-  });
+// 简单根路由
+app.get('/', (req: Request, res: Response) => {
+  res.send('Express + TypeScript + MariaDB Backend (hardcoded config) is running!');
 });
 
-// 启动服务
-const startServer = async () => {
-  await testDbConnection(); // 测试数据库连接
-  app.listen(PORT, () => {
-    console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
-  });
-};
+// 示例：查询某张表的所有数据（根据实际情况修改表名）
+app.get('/users', async (req: Request, res: Response) => {
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    const rows = await conn.query('SELECT * FROM users LIMIT 20'); // 改成你的表名
+    res.json(rows);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Query failed', message: err.message });
+  } finally {
+    if (conn) conn.release();
+  }
+});
 
-startServer();
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
