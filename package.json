@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/guigutan/shinewayserver#readme",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^5.2.1",
     "mariadb": "^3.4.5"
   },
