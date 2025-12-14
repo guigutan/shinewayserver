@@ -17,9 +17,10 @@ const pool = mariadb.createPool({
 });
 // ============================================
 
-//get接口示例(http://localhost:3000/api/Machine/C1)
-// 注意路由写法：/api/:MachineNO
-app.get('/api/Machine/:MachineNO', async (req, res) => {
+
+
+//get接口示例(http://localhost:3000/api/GetMachine1F/C1)
+app.get('/api/GetMachine1F/:MachineNO', async (req, res) => {
   // GET 路由参数从 req.params 获取
   const { MachineNO } = req.params as { MachineNO?: string };  
   // 参数校验：避免空值查询
@@ -45,8 +46,8 @@ app.get('/api/Machine/:MachineNO', async (req, res) => {
 
 
 //--------------------------------------------------------------------------
-//http://localhost:3000/api/LedStatusData/202512141443
-app.get('/api/LedStatusData/:ScadaNO', async (req, res) => {
+//get接口示例(http://localhost:3000/api/GetLed1F/202512141443)
+app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
   // GET 路由参数从 req.params 获取
   const { ScadaNO } = req.params as { ScadaNO?: string };  
   // 参数校验：避免空值查询
@@ -76,16 +77,18 @@ app.get('/api/LedStatusData/:ScadaNO', async (req, res) => {
 
 
 
-
+//--------------------------------------------------------------------------
 // post接口
-app.get('/api/Machine', async (req, res) => {
-  const { MachineNO } = req.body as { MachineNO?: string };  // 断言解决 any
+app.post('/api/PostLed1F', async (req, res) => {
+  const { ScadaNO } = req.body as { ScadaNO?: string };  // 断言解决 any
 
   try {
     const [rows] = await pool.query(
-      `SELECT * from t_machine WHERE 
-       MachineNO LIKE ? LIMIT 100 `,
-      [`%${MachineNO || ''}%`]
+      `SELECT t_machine.MachineNO,t_scadadata.LedStatus FROM t_machine LEFT JOIN   t_scadadata ON t_scadadata.MachineID=t_machine.MachineID
+        WHERE t_machine.MachineStatus=1
+        AND t_scadadata.ScadaNO=?
+        ORDER BY t_machine.OrderBy `,
+      [ScadaNO]
     );
     res.json({ success: true, data: rows });
   } catch (err: any) {
