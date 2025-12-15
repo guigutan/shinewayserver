@@ -161,14 +161,14 @@ app.post('/api/GetSum1F', async (req, res) => {
     const params = [DayT1, DayT2, LastT1, LastT2, ThisT1, ThisT2];
 
     // 执行查询（兼容 mysql2/promise 的返回值：[rows, fields]）
-    const [rows] = await conn.query(sql, params);
+    const rows = await conn.query(sql, params);
 
     // 4. 返回结果
-    res.json({
-      success: true,
-      message: '查询成功',
-      data: rows
+     res.json({ 
+      success: true, 
+      data: rows 
     });
+    
 
   } catch (err: any) {
     
