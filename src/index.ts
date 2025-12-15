@@ -50,11 +50,17 @@ app.get('/api/GetMachine1F/:MachineNO', async (req, res) => {
 app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
   // GET 路由参数从 req.params 获取
   const { ScadaNO } = req.params as { ScadaNO?: string };  
-  // 参数校验：避免空值查询
+  
+  // 修正：提示文字改为 ScadaNO 不能为空
   if (!ScadaNO) {
-    return res.status(400).json({ error: '参数错误', message: 'MachineNO 不能为空' });
+    return res.status(400).json({ 
+      success: false, 
+      message: 'ScadaNO 不能为空' 
+    });
   }
   let conn;
+
+
   try {
     conn = await pool.getConnection();
     // 参数化查询（防SQL注入），这里直接用 MachineNO 即可，无需 `${}` 包裹
@@ -65,10 +71,22 @@ app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
         ORDER BY t_machine.OrderBy `,
       [ScadaNO]
     );
-    res.json({ code: 200, data: rows });
+    // 修正：返回 success 字段，和前端一致
+    res.json({ 
+      success: true, 
+      data: rows 
+    });
+
+
   } catch (err: any) {
-    console.error('查询失败：', err); // 打印错误日志便于排查
-    res.status(500).json({ error: 'Query failed', message: err.message });
+    
+   console.error('查询失败：', err);
+    res.status(500).json({ 
+      success: false, 
+      message: err.message || '查询失败' 
+    });
+
+
   } finally {
     if (conn) conn.release(); // 释放连接
   }
