@@ -1,9 +1,3 @@
-// import express from 'express';
-// import mariadb from 'mariadb';
-// import cors from 'cors';
-
-
-
 import express, { Request, Response } from 'express';
 import mariadb from 'mariadb';
 import cors from 'cors';
@@ -13,13 +7,6 @@ app.set('case sensitive routing', false);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-
-// const app = express();
-// app.set('case sensitive routing', false); 
-// app.use(cors());
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
 
 
 // ===== 直接在这里填写你的 MariaDB 配置 =====
@@ -61,9 +48,7 @@ app.get('/api/GetMachine1F/:MachineNO', async (req, res) => {
 });
 
 
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+
 //get接口示例(http://localhost:3000/api/GetLed1F/202512141443)
 app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
   // GET 路由参数从 req.params 获取
@@ -77,7 +62,6 @@ app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
     });
   }
   let conn;
-
 
   try {
     conn = await pool.getConnection();
@@ -110,9 +94,35 @@ app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
   }
 });
 
+
+
+
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
+
+app.post('/api/GetSum1FTest', async (req, res) => {
+  const { MachineNO } = req.body as { MachineNO?: string }; 
+
+  try {
+    
+    const [rows] = await pool.query(
+      'SELECT * FROM t_machine WHERE MachineNO = ?',
+      [`${MachineNO || ''}`]
+    );
+
+    res.json({ success: true, data: rows });
+     
+
+  } catch (err: any) {
+    console.error('查询错误:', err);
+    res.status(500).json({ success: false, message: err.message || '查询失败' });
+  }
+});
+
+
+
+
 // POST 接口示例：http://localhost:3000/api/GetSum1F
 // 请求体（JSON）：
 // {
@@ -189,51 +199,12 @@ app.post('/api/GetSum1F', async (req, res) => {
 
 
 
-// ==================== 纯 TypeScript 版本的测试 POST 接口 ====================
-interface MachineRequestBody {
-  MachineNO: string;
-}
-
-app.post('/api/testmachine', async (req: Request<{}, any, MachineRequestBody>, res: Response) => {
-  const { MachineNO } = req.body;
-
-  if (!MachineNO) {
-    return res.status(400).json({
-      success: false,
-      message: 'MachineNO 参数不能为空',
-    });
-  }
-
-  let conn: mariadb.PoolConnection | null = null;
-  try {
-    conn = await pool.getConnection();
-
-    const rows: any[] = await conn.query(
-      'SELECT * FROM t_machine WHERE MachineNO = ?',
-      [MachineNO]
-    );
-
-    res.json({
-      success: true,
-      message: '查询成功',
-      count: rows.length,
-      data: rows,
-    });
-  } catch (err: any) {
-    console.error('testMachine 查询失败：', err);
-    res.status(500).json({
-      success: false,
-      message: '数据库查询失败',
-      error: err.message,
-    });
-  } finally {
-    if (conn) conn.release();
-  }
-});
-
 
 //-------------------------------------------------------------
 const port=3000;
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
+
+
+
