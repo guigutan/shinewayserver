@@ -67,9 +67,10 @@ app.get('/api/GetLed1F/:ScadaNO', async (req, res) => {
     conn = await pool.getConnection();
     // 参数化查询（防SQL注入），这里直接用 MachineNO 即可，无需 `${}` 包裹
     const rows = await conn.query(
-      `SELECT t_machine.MachineNO,t_scadadata.LedStatus FROM t_machine LEFT JOIN   t_scadadata ON t_scadadata.MachineID=t_machine.MachineID
-        WHERE t_machine.MachineStatus=1
-        AND t_scadadata.ScadaNO=?
+      `SELECT 
+          MachineNO ,
+          IFNULL((SELECT LedStatus FROM t_scadadata WHERE t_scadadata.MachineID=t_machine.MachineID AND t_scadadata.ScadaNO=?),-1) AS 'LedStatus'
+        FROM t_machine 
         ORDER BY t_machine.OrderBy `,
       [ScadaNO]
     );
