@@ -202,10 +202,9 @@ app.post('/api/GetSum1F', async (req, res) => {
 
 
 //-------------------------------------------------------------
-const port=3000;
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
 
+app.listen(3000, '0.0.0.0', () => {
+  console.log('服务运行于：http://localhost:3000 和 http://本机IP:3000')
+})
 
 
