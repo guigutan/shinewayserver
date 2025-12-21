@@ -22,8 +22,11 @@ router.get('/GetLed2F/:ScadaNO', async (req: ScadaNORequest, res: Response) => {
     const rows = await conn.query(
       `SELECT 
         MachineNO ,
-        IFNULL((SELECT LedStatus FROM t_scadadata WHERE t_scadadata.MachineID=t_machine.MachineID AND t_scadadata.ScadaNO=?),-1) AS 'LedStatus'
-      FROM t_machine 
+         IFNULL((SELECT LedStatus FROM t_scadadata WHERE t_scadadata.MachineID=t_machine.MachineID AND t_scadadata.ScadaNO=?),-1) AS 'LedStatus',
+        trCount,
+        tdCount,
+        colIndex
+        FROM t_machine  WHERE MachineStatus>0  
       ORDER BY t_machine.OrderBy `,
       [ScadaNO]
     );
