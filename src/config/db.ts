@@ -3,8 +3,8 @@ import mariadb from 'mariadb';
 // 数据库连接池配置
 const createPool = (dbName: string) => 
   mariadb.createPool({
-    host: 'localhost',
-    port: 3306,
+    host: '61.142.21.100',
+    port: 33061,
     user: 'root',
     password: 'Aa111111',
     database: dbName,
