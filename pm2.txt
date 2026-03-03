@@ -1,0 +1,62 @@
+在「系统变量」中新建，变量名：PM2_HOME，变量值：D:\www\pm2config
+在「用户变量」中也添加相同的 PM2_HOME（确保当前用户和系统服务都能读取）
+
+第一步：全局安装 PM2（必须全局）
+npm install pm2 -g
+pm2 update   # 更新到最新版
+验证：pm2 --version
+
+第三步：开机自启（等进程跑通后再做）
+安装 PM2 服务
+npm install -g pm2-windows-service
+pm2-service-install -n PM2
+
+安装过程中会问几个问题，建议这样回答：
+? Perform environment setup (recommended)? Yes
+? Set PM2_HOME? Yes
+? PM2_HOME value (this path should be accessible to the service user and
+should not contain any "user-context" variables [e.g. %APPDATA%]): D:\www\pm2config
+? Set PM2_SERVICE_SCRIPTS (the list of start-up scripts for pm2)? Yes
+? Set the list of startup scripts/files (semi-colon separated json config
+files or js files) D:\www\pm2_config\ecosystem.config.js
+? Set PM2_SERVICE_PM2_DIR (the location of the global pm2 to use with the service)? [recommended] Yes
+? Specify the directory containing the pm2 version to be used by the
+service C:\USERS\00158137\APPDATA\ROAMING\NPM\node_modules\pm2\index.js
+PM2 service installed and started.
+
+--------------------------------------
+
+pm2 start ecosystem.config.js  # 可加 --env production 指定环境
+pm2 start D:\www\pm2config\appstart.js
+
+强制保存进程列表到 PM2_HOME 目录：
+pm2 save --force
+
+强制保存进程后状态为stoping时执行以下
+pm2 stop shinewayserver
+
+--------------------------------------
+
+卸载旧服务（如果已安装）：
+pm2-service-uninstall
+重新安装，并明确启用 resurrect：
+pm2-service-install -n PM2 --no-daemon
+
+最后：常用 PM2 命令（以后管理用）
+pm2 list / monit / logs shinewayServer
+pm2 restart shinewayServer
+pm2 stop / delete shinewayServer
+pm2 save   （每次改进程后都要 save）
+
+
+
+
+
+
+
+
+
+
+
+
+
