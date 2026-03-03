@@ -1,7 +1,9 @@
 import express from 'express';
 import cors from 'cors';
+import os from 'os'; // 显式导入 os 模块（替代 require，符合 ESModule 规范）
+import type { NetworkInterfaceInfo } from 'os'; // 导入 os 模块的类型定义
 
-// 导入路由模块
+// 导入路由模块（保持原有导入逻辑）
 import machine1FRouter from './routes/machine1F';
 import machine2FRouter from './routes/machine2F';
 import machine3FRouter from './routes/machine3F';
@@ -21,6 +23,7 @@ import MachineHoursSum3F from './routes/MachineHoursSum3F';
 // 创建Express实例
 const app = express();
 const PORT = 3000;
+const HOST = '0.0.0.0';
 
 // 全局中间件
 app.set('case sensitive routing', false);
@@ -45,9 +48,38 @@ app.use('/api', MachineHoursSum1F);
 app.use('/api', MachineHoursSum2F);
 app.use('/api', MachineHoursSum3F);
 
+// 封装获取本机IP的函数（类型安全）
+const getLocalIP = (): string => {
+  // 获取所有网络接口
+  const interfaces = os.networkInterfaces();
+  // 遍历以太网接口（兼容中文/英文网卡名：以太网 / Ethernet）
+  const ethernetInterface = interfaces['以太网'] || interfaces['Ethernet'];
+  
+  if (ethernetInterface) {
+    // 显式声明 item 类型为 NetworkInterfaceInfo，解决 any 警告
+    const ipv4 = ethernetInterface.find((item: NetworkInterfaceInfo) => {
+      return item.family === 'IPv4' && !item.internal;
+    });
+    return ipv4?.address || '192.168.x.x';
+  }
+  
+  // 兜底：遍历所有接口找可用IPv4
+  for (const key in interfaces) {
+    const ipv4 = interfaces[key]?.find((item: NetworkInterfaceInfo) => {
+      return item.family === 'IPv4' && !item.internal;
+    });
+    if (ipv4) return ipv4.address;
+  }
+  
+  return '192.168.x.x';
+};
+
 // 启动服务
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`服务运行于：http://localhost:${PORT} 和 http://本机IP:${PORT}`);
+app.listen(PORT, HOST, () => {
+  const localIP = getLocalIP();
+  console.log(`✅ API 服务器启动成功！`);
+  console.log(`🔗 本机访问：http://localhost:${PORT}`);
+  console.log(`🌐 局域网访问：http://${localIP}:${PORT}`);
 });
 
 // 导出app供测试用（可选）

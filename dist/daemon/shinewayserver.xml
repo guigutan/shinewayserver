@@ -1,0 +1,34 @@
+<service>
+	<id>shinewayserver.exe</id>
+	<name>ShinewayServer</name>
+	<description>兴晖API后台服务</description>
+	<executable>D:\Program Files\nodejs\node.exe</executable>
+	<argument>--harmony</argument>
+	<argument>D:\www\shinewayserver\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>D:\www\shinewayserver\dist\app.js</argument>
+	<argument>--scriptoptions=</argument>
+	<argument>--log</argument>
+	<argument>ShinewayServer wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<logmode>rotate</logmode>
+	<logpath>D:\www\shinewayserver\service-logs</logpath>
+	<stoptimeout>30sec</stoptimeout>
+	<env name="NODE_ENV" value="production"/>
+	<env name="PATH" value="C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Microsoft SQL Server\150\Tools\Binn\;C:\Program Files\dotnet\;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;c:\Program Files (x86)\Microsoft SQL Server\110\Tools\Binn\;c:\Program Files\Microsoft SQL Server\110\Tools\Binn\;c:\Program Files\Microsoft SQL Server\110\DTS\Binn\;D:\Program Files\Microsoft VS Code Insiders\bin;D:\Program Files\nodejs\;D:\Program Files (x86)\NetSarang\Xshell 8\;C:\melpcnc\bin32;C:\Program Files (x86)\EZSocket\EZSocketNc\CommServer\M700;D:\Oracle\ODAC\bin;C:\Users\00158137\AppData\Local\Microsoft\WindowsApps;C:\Users\00158137\.dotnet\tools;C:\Users\00158137\AppData\Local\GitHubDesktop\bin;C:\Users\00158137\AppData\Local\Python\bin;C:\Users\00158137\AppData\Roaming\npm"/>
+	<serviceaccount>
+		<domain>TANPS</domain>
+		<user>LocalSystem</user>
+		<password></password>
+	</serviceaccount>
+	<workingdirectory>D:\www\shinewayserver</workingdirectory>
+</service>
